@@ -1,44 +1,71 @@
 # my_second_repo0-
 import streamlit as st
 import random
-import time
 
 st.set_page_config(page_title="RPG 어드벤처", page_icon="🎮")
 
-# 🎨 배경 + 스타일
+# 🎨 UI + 가독성 개선 (핵심)
 st.markdown("""
 <style>
+/* 전체 배경 + 어둡게 덮기 */
 .stApp {
     background-image: url("https://images.unsplash.com/photo-1511512578047-dfb367046420");
     background-size: cover;
     background-attachment: fixed;
 }
 
-.card {
-    background: rgba(0,0,0,0.7);
-    padding: 20px;
-    border-radius: 20px;
+.stApp::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0,0,0,0.65); /* 🔥 핵심: 어둡게 덮기 */
+    z-index: 0;
+}
+
+/* 모든 컨텐츠 위로 올리기 */
+.main {
+    position: relative;
+    z-index: 1;
     color: white;
 }
 
+/* 카드 UI */
+.card {
+    background: rgba(0,0,0,0.8);
+    padding: 20px;
+    border-radius: 20px;
+    margin-top: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+}
+
+/* 버튼 스타일 */
 button {
-    border-radius: 10px !important;
+    border-radius: 12px !important;
+    font-weight: bold !important;
+}
+
+/* 텍스트 강조 */
+h1, h2, h3, h4, p {
+    color: white !important;
 }
 </style>
 """, unsafe_allow_html=True)
 
 st.title("🎮 RPG 어드벤처")
-st.write("⚔️ 탐험하고 살아남아라!")
+st.write("⚔️ 탐험하고 성장하는 나만의 게임")
 
-# 🧠 상태 초기화 (에러 방지 핵심)
+st.markdown("---")
+
+# 🧠 상태 관리 (안정 핵심)
 if "char" not in st.session_state:
     st.session_state.char = None
 if "mode" not in st.session_state:
     st.session_state.mode = "idle"
 if "enemy" not in st.session_state:
     st.session_state.enemy = None
-
-st.markdown("---")
 
 # 🧙 캐릭터 생성
 if st.session_state.char is None:
@@ -50,17 +77,17 @@ if st.session_state.char is None:
             "level": 1,
             "gold": 0
         }
-        st.session_state.mode = "idle"
         st.balloons()
         st.rerun()
 
-# 🧾 캐릭터 표시
+# 🧾 캐릭터 정보
 if st.session_state.char:
     c = st.session_state.char
 
     st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.write(f"🏷️ {c['name']} | 🆙 Lv.{c['level']} | ❤️ {c['hp']} | 💰 {c['gold']}G")
-    st.progress(max(c["hp"],0), text="체력")
+    st.subheader(f"🏷️ {c['name']}")
+    st.write(f"🆙 레벨: {c['level']} | 💰 골드: {c['gold']}")
+    st.progress(max(c["hp"],0), text=f"❤️ 체력 {c['hp']}")
     st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown("---")
@@ -98,8 +125,11 @@ if st.session_state.char:
     if st.session_state.mode == "battle":
         enemy = st.session_state.enemy
 
+        st.markdown('<div class="card">', unsafe_allow_html=True)
         st.subheader("⚔️ 전투 중")
-        st.warning(f"👾 몬스터 | HP: {enemy['hp']} / 공격력: {enemy['power']}")
+        st.write(f"👾 몬스터 HP: {enemy['hp']}")
+        st.write(f"💥 공격력: {enemy['power']}")
+        st.markdown('</div>', unsafe_allow_html=True)
 
         col1, col2 = st.columns(2)
 
@@ -132,7 +162,7 @@ if st.session_state.char:
 
             st.rerun()
 
-    # 💀 게임오버
+    # 💀 게임 오버
     if c["hp"] <= 0:
         st.error("☠️ GAME OVER")
         if st.button("🔄 다시 시작"):
